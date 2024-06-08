@@ -1,4 +1,4 @@
-# E - Voting Created Using Django 
+# Mini-Project
 This E - Voting System Was Developed With Django(Python Framework).
 Feel free to make changes based on your requirements.
 
