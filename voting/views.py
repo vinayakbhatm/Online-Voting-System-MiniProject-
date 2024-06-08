@@ -9,9 +9,8 @@ from django.http import JsonResponse
 import requests
 import json
 import os
+import numpy as np
 from twilio.rest import Client
-
-
 from django.core.mail import send_mail
 from e_voting.settings import EMAIL_HOST_USER
 
