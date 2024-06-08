@@ -9,7 +9,7 @@ from django.http import JsonResponse
 import requests
 import json
 import os
-import numpy as np
+from django.db.models import Count
 from twilio.rest import Client
 from django.core.mail import send_mail
 from e_voting.settings import EMAIL_HOST_USER
@@ -427,20 +427,29 @@ def submit_ballot(request):
         return redirect(reverse('voterDashboard'))
 
 
+
+
 def show_result(request):
-    # positions = Position.objects.order_by('-priority').all()
-    # form = PositionForm(request.POST or None)
-    # context = {
-    #     'positions': positions,
-    #     'form1': form,
-    #     'page_title': "Positions"
-    # }
-    # if request.method == 'POST':
-    #     if form.is_valid():
-    #         form = form.save(commit=False)
-    #         form.priority = positions.count() + 1  # Just in case it is empty.
-    #         form.save()
-    #         messages.success(request, "New Position Created")
-    #     else:
-    #         messages.error(request, "Form errors")
-    return render(request, "voting/voter/viewRes.html")
+    # Get all positions
+    positions = Position.objects.all()
+    
+    results = []
+    
+    # For each position, calculate the number of votes per candidate
+    for position in positions:
+        votes = Votes.objects.filter(position=position).values('candidate').annotate(vote_count=Count('candidate')).order_by('-vote_count')
+        
+        # Get the candidate with the highest votes for this position
+        if votes:
+            winner = votes[0]
+            results.append({
+                'position': position,
+                'winner': winner['candidate'],
+                'vote_count': winner['vote_count'],
+            })
+    
+    context = {
+        'results': results,
+    }
+    
+    return render(request, "voting/voter/viewRes.html", context)
