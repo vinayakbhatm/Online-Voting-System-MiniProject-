@@ -428,4 +428,20 @@ def submit_ballot(request):
         return redirect(reverse('voterDashboard'))
 
 
-# def showresult(request):
+def show_result(request):
+    # positions = Position.objects.order_by('-priority').all()
+    # form = PositionForm(request.POST or None)
+    # context = {
+    #     'positions': positions,
+    #     'form1': form,
+    #     'page_title': "Positions"
+    # }
+    # if request.method == 'POST':
+    #     if form.is_valid():
+    #         form = form.save(commit=False)
+    #         form.priority = positions.count() + 1  # Just in case it is empty.
+    #         form.save()
+    #         messages.success(request, "New Position Created")
+    #     else:
+    #         messages.error(request, "Form errors")
+    return render(request, "voting/voter/viewRes.html")
