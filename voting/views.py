@@ -429,6 +429,7 @@ def submit_ballot(request):
 
 
 
+
 def show_result(request):
     # Get all positions
     positions = Position.objects.all()
@@ -441,11 +442,12 @@ def show_result(request):
         
         # Get the candidate with the highest votes for this position
         if votes:
-            winner = votes[0]
+            winner_id = votes[0]['candidate']
+            winner = Candidate.objects.get(id=winner_id)
             results.append({
                 'position': position,
-                'winner': winner['candidate'],
-                'vote_count': winner['vote_count'],
+                'winner': winner,
+                'vote_count': votes[0]['vote_count'],
             })
     
     context = {
