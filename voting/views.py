@@ -220,7 +220,7 @@ def resend_otp(request):
                     voter.otp_sent = voter.otp_sent + 1
                     voter.save()
 
-                    response = "OTP has been sent to your phone number. Please provide it in the box provided below"
+                    response = "OTP has been sent to your Email. Please provide it in the box provided below"
                 else:
                     error = True
                     response = "OTP not sent. Please try again"
@@ -292,13 +292,22 @@ def verify_otp(request):
     return redirect(reverse('show_ballot'))
 
 
+def sidebar_msg(request):
+    flag = False
+    if request.user.voter.verified:
+        flag = True
+    context = {
+        'verified': flag
+    }
+    return render(request, "e-voting-with-django/administrator/templates/sidebar.html", context)
+
 def show_ballot(request):
     if request.user.voter.voted:
         messages.error(request, "You have voted already")
         return redirect(reverse('voterDashboard'))
     ballot = generate_ballot(display_controls=False)
     context = {
-        'ballot': ballot
+        'ballot': ballot,
     }
     return render(request, "voting/voter/ballot.html", context)
 
@@ -466,14 +475,46 @@ def submit_ballot(request):
 
 
 
+# def show_result(request):
+#     # Get all positions
+
+#     positions = Position.objects.all()
+    
+#     results = []
+    
+#     # For each position, calculate the number of votes per candidate
+#     for position in positions:
+#         votes = Votes.objects.filter(position=position).values('candidate').annotate(vote_count=Count('candidate')).order_by('-vote_count')
+        
+#         # Get the candidate with the highest votes for this position
+#         if votes:
+#             winner_id = votes[0]['candidate']
+#             winner = Candidate.objects.get(id=winner_id)
+#             results.append({
+#                 'position': position,
+#                 'winner': winner,
+#                 'vote_count': votes[0]['vote_count'],
+#             })
+    
+#     context = {
+#         'results': results,
+#     }
+    
+#     return render(request, "voting/voter/viewRes.html", context)
+
+
 def show_result(request):
-    # Get all positions
-    positions = Position.objects.all()
+    # Get the current voter
+    current_voter = request.user.voter
+    
+    # Get the positions the current voter has voted for
+    voted_positions = Votes.objects.filter(voter=current_voter).values_list('position', flat=True).distinct()
     
     results = []
     
-    # For each position, calculate the number of votes per candidate
-    for position in positions:
+    # For each voted position, calculate the number of votes per candidate
+    for position_id in voted_positions:
+        position = Position.objects.get(id=position_id)
         votes = Votes.objects.filter(position=position).values('candidate').annotate(vote_count=Count('candidate')).order_by('-vote_count')
         
         # Get the candidate with the highest votes for this position

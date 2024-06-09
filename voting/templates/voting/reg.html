@@ -21,14 +21,17 @@
                     </div>
                     {% endfor %}
 
-                    {% for field in form2  %}
+                    {% for field in form2 %}
                     <div class="form-group has-feedback">
-                        <span class="text-danger">{{field.errors}}</span>
-                        {{field.label_tag}}
-                        {{field}}
+                        {{ field.errors }}
+                        {% if field.name == "phone" %}
+                        <label for="{{ field.id_for_label }}">Email for OTP</label>
+                        {% else %}
+                        {{ field.label_tag }}
+                        {% endif %}
+                        {{ field }}
                     </div>
                     {% endfor %}
-
 
                
 
@@ -65,19 +68,24 @@
                     <div class="modal-body">
                         {% for field in form1  %}
                         <div class="form-group has-feedback">
+
                             {{field.errors}}
                             {{field.label_tag}}
                             {{field}}
                         </div>
                         {% endfor %}
 
-                        {% for field in form2  %}
-                        <div class="form-group has-feedback">
-                            {{field.errors}}
-                            {{field.label_tag}}
-                            {{field}}
-                        </div>
-                        {% endfor %}
+                        {% for field in form2 %}
+                    <div class="form-group has-feedback">
+                        {{ field.errors }}
+                        {% if field.name == "phone" %}
+                        <label for="{{ field.id_for_label }}">Email for OTP</label>
+                        {% else %}
+                        {{ field.label_tag }}
+                        {% endif %}
+                        {{ field }}
+                    </div>
+                    {% endfor %}
 
 
                    

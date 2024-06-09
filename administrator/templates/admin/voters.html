@@ -14,7 +14,7 @@
           <th>Lastname</th>
           <th>Firstname</th>
           <th>Email</th>
-          <th>Phone</th>
+          <th>Email for OTP</th>
           <th>Action</th>
       </thead>
       <tbody>
@@ -66,11 +66,15 @@
                   </div>
                   {% endfor %}
 
-                  {% for field in form2  %}
+                  {% for field in form2 %}
                   <div class="form-group has-feedback">
-                      <span class="text-danger">{{field.errors}}</span>
-                      {{field.label_tag}}
-                      {{field}}
+                      {{ field.errors }}
+                      {% if field.name == "phone" %}
+                      <label for="{{ field.id_for_label }}">Email for OTP</label>
+                      {% else %}
+                      {{ field.label_tag }}
+                      {% endif %}
+                      {{ field }}
                   </div>
                   {% endfor %}
 

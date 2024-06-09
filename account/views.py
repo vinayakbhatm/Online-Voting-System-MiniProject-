@@ -31,6 +31,7 @@ def account_login(request):
     return render(request, "voting/login.html", context)
 
 
+
 def account_register(request):
     userForm = CustomUserForm(request.POST or None)
     voterForm = VoterForm(request.POST or None)
