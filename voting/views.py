@@ -106,9 +106,38 @@ def generate_otp():
     return otp
 
 
+# def dashboard(request):
+#     user = request.user
+#     # * Check if this voter has been verified
+#     if user.voter.otp is None or user.voter.verified == False:
+#         if not settings.SEND_OTP:
+#             # Bypass
+#             msg = bypass_otp()
+#             messages.success(request, msg)
+#             return redirect(reverse('show_ballot'))
+#         else:
+#             return redirect(reverse('voterVerify'))
+#     else:
+#         if user.voter.voted:  # * User has voted
+#             # To display election result or candidates I voted for ?
+#             context = {
+#                 'my_votes': Votes.objects.filter(voter=user.voter),
+#             }
+#             return render(request, "voting/voter/result.html", context)
+#         else:
+#             return redirect(reverse('show_ballot'))
+
+
+
 def dashboard(request):
     user = request.user
-    # * Check if this voter has been verified
+    
+    # Check if the user has visited the verification page
+    if not request.session.get('verified_page_visited', False):
+        request.session['verified_page_visited'] = True
+        return redirect(reverse('voterVerify'))
+    
+    # Check if this voter has been verified
     if user.voter.otp is None or user.voter.verified == False:
         if not settings.SEND_OTP:
             # Bypass
@@ -118,14 +147,21 @@ def dashboard(request):
         else:
             return redirect(reverse('voterVerify'))
     else:
-        if user.voter.voted:  # * User has voted
-            # To display election result or candidates I voted for ?
+        if user.voter.voted:  # User has voted
+            # To display election result or candidates I voted for
             context = {
                 'my_votes': Votes.objects.filter(voter=user.voter),
             }
             return render(request, "voting/voter/result.html", context)
         else:
             return redirect(reverse('show_ballot'))
+
+
+
+
+
+
+
 
 
 def verify(request):
