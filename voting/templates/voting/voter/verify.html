@@ -1,87 +1,136 @@
-{% extends 'root.html' %}
-{% block content %}
-<section class="content">
-  <h1 class="page-header text-center title"><b>{{ TITLE }}</b></h1>
-<div class="row">
-<div class="col-sm-10 col-sm-offset-1">
+<!DOCTYPE html>
+<html>
+{% load static %}
+{% include 'header.html' %}
 
-<div class="alert alert-danger alert-dismissible" id="alert" style="display:none;">
-<button type="button" class="close" data-dismiss="alert"
-aria-hidden="true">&times;</button>
-<span class="message"></span>
-</div>
+<body class="hold-transition skin-blue sidebar-mini">
+  <div class="wrapper">
 
-                  <!-- Voting Ballot -->
-<form method="POST" id="ballotForm" action="{% url 'verify_otp' %}">
-  {% csrf_token %}
-<div class="row">
-<div class="col-xs-12">
-  <div class="box box-solid" id="">
-      <div class="box-header with-border">
-          <h3 class="box-title"><b>Please, you'd need to verify ownership of this
-                  account.</b>
-              <hr>
-          </h3>
-      </div>
-      <div class="box-body">
-          <div id="candidate_list">
-              <p><span class="pull-right">
-                      <a id="request_otp"
-                          class="btn btn-success btn-sm btn-flat "><i
-                              class="fa fa-refresh"></i> Request OTP</a>
-                  </span>
-              </p>
+    {% include "navbar.html" %}
+
+    <!-- Modal -->
+    <div class="modal fade" id="config">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title"><b>Configure</b></h4>
           </div>
-          <ul>
-              <p> Kindly provide the OTP sent to your mail provided during registration
-                  <!-- **-***-*{{ request.user.voter.phone|slice:"7:" }} --></p>
-          </ul>
-          <hr />
-          <div class="form-group has-feedback">
-              <input type="text" class="form-control" name="otp" placeholder="OTP"
-                  required>
-              <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+          <div class="modal-body">
+            <div class="text-center">
+              <form class="form-horizontal" method="POST" action="{% url 'ballot_title'  %}">
+                <div class="form-group">
+                  {% csrf_token %}
+                  <label for="title" class="col-sm-3 control-label">Title</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control" required id="title" name="title" value="{{ TITLE }}">
+                  </div>
+                </div>
+            </div>
           </div>
-          <button type="submit" class="btn btn-primary btn-flat" name="verify"><i
-            class="fa fa-check-square-o"></i> Verify OTP</button>
-</div>
-    </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+            <button type="submit" class="btn btn-success btn-flat" name="save"><i class="fa fa-save"></i> Save</button>
+            </form>
+          </div>
+        </div>
       </div>
-       </div>
-      </form>
     </div>
-  </div>
-</section>
-{% endblock content %}
 
-{% block custom_js %}
-  <script>
-    $("#request_otp").click(function(){
-      var button =  $("#request_otp");
-      button.attr("disabled",true);
-      $.ajax({
-        url: "{% url 'resend_otp' %}",
-        type: 'GET',
-        
-        success: function(response){
-          console.log(response.data)
-          console.log(response)
-          if (response.error){
-            toastr.error(response.data,"Error occurred while sending OTP");
-          }else{
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+      <!-- Content Header (Page header) -->
+      <section class="content-header">
+        <h1>{{ page_title }}</h1>
+        <ol class="breadcrumb">
+          <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+          <li class="active">{{ page_title }}</li>
+        </ol>
+      </section>
 
-            toastr.success(response.data,"OTP Response");
-          }
-          button.attr("disabled",false);
+      <!-- Main content -->
+      <section class="content">
+        <div class="container">
+          <h1 class="page-header text-center title"><b>{{ TITLE }}</b></h1>
+          <div class="row justify-content-center">
+            <div class="col-md-8">
 
-        },
-        error: function(response){
-          toastr.error("Please try again later", "Error")
-          button.attr("disabled",false);
+              <div class="alert alert-danger alert-dismissible" id="alert" style="display:none;">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <span class="message"></span>
+              </div>
 
-        },
+              <!-- Voting Ballot -->
+              <form method="POST" id="ballotForm" action="{% url 'verify_otp' %}">
+                {% csrf_token %}
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title"><b>Please verify ownership of this account.</b></h3>
+                    <hr>
+                  </div>
+                  <div class="card-body">
+                    <div id="candidate_list">
+                      <p><span class="pull-right">
+                          <a id="request_otp" class="btn btn-success btn-sm btn-flat"><i class="fa fa-refresh"></i> Request OTP</a>
+                        </span>
+                      </p>
+                    </div>
+                    <ul>
+                      <p> Kindly provide the OTP sent to your mail provided during registration
+                        <!-- --{{ request.user.voter.phone|slice:"7:" }} --></p>
+                    </ul>
+                    <hr />
+                    <div class="form-group has-feedback">
+                      <input type="text" class="form-control" name="otp" placeholder="OTP" required>
+                      <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-flat" name="verify"><i class="fa fa-check-square-o"></i> Verify OTP</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- /.content -->
 
+    </div>
+    <!-- /.content-wrapper -->
+
+    {% include "footer.html" %}
+    {% include "scripts.html" %}
+
+    <script>
+      $("#request_otp").click(function() {
+        var button = $("#request_otp");
+        button.attr("disabled", true);
+        $.ajax({
+          url: "{% url 'resend_otp' %}",
+          type: 'GET',
+
+          success: function(response) {
+            console.log(response.data)
+            console.log(response)
+            if (response.error) {
+              toastr.error(response.data, "Error occurred while sending OTP");
+            } else {
+              toastr.success(response.data, "OTP Response");
+            }
+            button.attr("disabled", false);
+
+          },
+          error: function(response) {
+            toastr.error("Please try again later", "Error")
+            button.attr("disabled", false);
+
+          },
+
+        });
       });
-    });
-  </script>
-{% endblock custom_js %}
+    </script>
+
+  </div>
+  <!-- /.wrapper -->
+</body>
+</html>
