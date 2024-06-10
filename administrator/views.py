@@ -8,7 +8,8 @@ from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 import json  # Not used
 # from django_renderpdf.views import PDFView
-
+from django.core.mail import send_mail
+from e_voting.settings import EMAIL_HOST_USER
 
 def find_n_winners(data, n):
     """Read More
@@ -123,6 +124,96 @@ def dashboard(request):
     return render(request, "admin/home.html", context)
 
 
+# def voters(request):
+#     voters = Voter.objects.all()
+#     userForm = CustomUserForm(request.POST or None)
+#     voterForm = VoterForm(request.POST or None)
+#     context = {
+#         'form1': userForm,
+#         'form2': voterForm,
+#         'voters': voters,
+#         'page_title': 'Voters List'
+#     }
+#     if request.method == 'POST':
+#         if userForm.is_valid() and voterForm.is_valid():
+#             user = userForm.save(commit=False)
+#             voter = voterForm.save(commit=False)
+#             voter.admin = user
+#             user.save()
+#             voter.save()
+#             messages.success(request, "New voter created")
+#         else:
+#             messages.error(request, "Form validation failed")
+#     return render(request, "admin/voters.html", context)
+
+
+
+import random
+import string
+from django.contrib.auth.hashers import make_password
+from django.core.mail import send_mail
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+# def generate_simple_password(length=8):
+#     characters = string.ascii_letters + string.digits
+#     return ''.join(random.choice(characters) for i in range(length))
+
+# def voters(request):
+#     voters = Voter.objects.all()
+#     userForm = CustomUserForm(request.POST or None)
+#     voterForm = VoterForm(request.POST or None)
+#     context = {
+#         'form1': userForm,
+#         'form2': voterForm,
+#         'voters': voters,
+#         'page_title': 'Voters List'
+#     }
+#     if request.method == 'POST':
+#         if userForm.is_valid() and voterForm.is_valid():
+#             user = userForm.save(commit=False)
+#             voter = voterForm.save(commit=False)
+#             voter.admin = user
+            
+#             # Generate a simple random password
+#             simple_password = generate_simple_password()
+#             user.password = make_password(simple_password)
+            
+#             user.save()
+#             voter.save()
+#             l=['0']
+#             email = voter.phone
+#             l[0]=email
+#             try:
+#                 send_mail(
+#                     'Your Account Password',
+#                     f'Your account has been created. Your password is: {simple_password}',
+#                     EMAIL_HOST_USER,
+#                     l,
+#                     fail_silently=False,
+#                 )
+#                 messages.success(request, "New voter created and email sent")
+#             except Exception as e:
+#                 logger.error(f"Failed to send email: {e}")
+#                 messages.success(request, "New voter created, but failed to send email")
+#         else:
+#             messages.error(request, "Form validation failed")
+#     return render(request, "admin/voters.html", context)
+
+import logging
+from django.core.mail import send_mail
+from django.contrib.auth.hashers import make_password
+from django.shortcuts import render, redirect
+from django.contrib import messages
+
+logger = logging.getLogger(__name__)
+
+def generate_simple_password(length=8):
+    characters = string.ascii_letters + string.digits
+    return ''.join(random.choice(characters) for i in range(length))
+
 def voters(request):
     voters = Voter.objects.all()
     userForm = CustomUserForm(request.POST or None)
@@ -138,9 +229,27 @@ def voters(request):
             user = userForm.save(commit=False)
             voter = voterForm.save(commit=False)
             voter.admin = user
+            
+            # Generate a simple random password
+            simple_password = request.POST.get('password')
+            user.password = make_password(simple_password)
+            
             user.save()
             voter.save()
-            messages.success(request, "New voter created")
+            
+            email = voter.phone  # Get the email from the userForm
+            try:
+                send_mail(
+                    'Your Account Password',
+                    f'Your account has been created. Your password is: {simple_password}',
+                    EMAIL_HOST_USER,
+                    [email],
+                    fail_silently=False,
+                )
+                messages.success(request, "New voter created and email sent")
+            except Exception as e:
+                logger.error(f"Failed to send email: {e}")
+                messages.success(request, "New voter created, but failed to send email")
         else:
             messages.error(request, "Form validation failed")
     return render(request, "admin/voters.html", context)

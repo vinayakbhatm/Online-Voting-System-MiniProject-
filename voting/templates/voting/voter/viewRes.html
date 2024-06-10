@@ -12,17 +12,23 @@
             <thead>
               <tr>
                 <th>Position</th>
-                <th>Winner</th>
+                <th>Winners</th>
                 <th>Vote Count</th>
               </tr>
             </thead>
             <tbody>
               {% for result in results %}
               <tr>
-                <td>{{ result.position.name }}</td>
-                <td>{{ result.winner.fullname }}</td>
-                <td>{{ result.vote_count }}</td>
+                <td rowspan="{{ result.winners|length }}">{{ result.position.name }}</td>
+                <td>{{ result.winners.0.candidate.fullname }}</td>
+                <td>{{ result.winners.0.vote_count }}</td>
               </tr>
+              {% for winner in result.winners|slice:'1:' %}
+              <tr>
+                <td>{{ winner.candidate.fullname }}</td>
+                <td>{{ winner.vote_count }}</td>
+              </tr>
+              {% endfor %}
               {% endfor %}
             </tbody>
           </table>

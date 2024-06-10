@@ -502,6 +502,7 @@ def submit_ballot(request):
     
 #     return render(request, "voting/voter/viewRes.html", context)
 
+from django.db.models import Count
 
 def show_result(request):
     # Get the current voter
@@ -517,14 +518,18 @@ def show_result(request):
         position = Position.objects.get(id=position_id)
         votes = Votes.objects.filter(position=position).values('candidate').annotate(vote_count=Count('candidate')).order_by('-vote_count')
         
-        # Get the candidate with the highest votes for this position
+        # Get the top three candidates with the highest votes for this position
         if votes:
-            winner_id = votes[0]['candidate']
-            winner = Candidate.objects.get(id=winner_id)
+            top_three_candidates = votes[:3]
+            winners = [
+                {
+                    'candidate': Candidate.objects.get(id=vote['candidate']),
+                    'vote_count': vote['vote_count']
+                } for vote in top_three_candidates
+            ]
             results.append({
                 'position': position,
-                'winner': winner,
-                'vote_count': votes[0]['vote_count'],
+                'winners': winners
             })
     
     context = {
